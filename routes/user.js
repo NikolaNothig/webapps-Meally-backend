@@ -36,12 +36,14 @@ router.post('/login', async (req, res) => {
       return res
         .cookie("loginToken", user.loginToken, { sameSite: "none", secure: true })
         .cookie("username", user.username, { sameSite: "none", secure: true })
+        .cookie("userId", user._id.toString(), { sameSite: "none", secure: true })  // Add this line
         .status(200)
         .json({
           message: "OK",
           cookies: {
             loginToken: user.loginToken,
             username: user.username,
+            userId: user._id.toString()  
           },
         });
     } else {
@@ -51,6 +53,7 @@ router.post('/login', async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 });
+
 
 
 router.get('/', async (req, res) => {
