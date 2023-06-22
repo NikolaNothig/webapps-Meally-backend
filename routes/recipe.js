@@ -41,6 +41,31 @@ router.get('/', async (req, res) => {
   }
 });
 
+router.get('/search', async (req, res) => {
+  try {
+    let { sort, ingredients } = req.query;
+
+    
+    let sortOption = {};
+    if (sort === 'rating') {
+      sortOption = { 'ratings.rating': -1 }; 
+    } else if (sort === 'difficulty') {
+      sortOption = { 'ratings.difficulty': -1 }; 
+    }
+
+    
+    let filterOption = {};
+    if (ingredients) {
+      ingredients = ingredients.split(',');
+      filterOption = { 'ingredients': { $in: ingredients } }; 
+    }
+
+    const recipes = await Recipe.find(filterOption).sort(sortOption).populate('createdBy');
+    res.status(200).json(recipes);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
 
 router.get('/:id', async (req, res) => {
   try {
@@ -70,31 +95,5 @@ router.post('/:id/rate', async (req, res) => {
   }
 });
 
-
-router.get('/search', async (req, res) => {
-  try {
-    let { sort, ingredients } = req.query;
-
-    
-    let sortOption = {};
-    if (sort === 'rating') {
-      sortOption = { 'ratings.rating': -1 }; 
-    } else if (sort === 'difficulty') {
-      sortOption = { 'ratings.difficulty': -1 }; 
-    }
-
-    
-    let filterOption = {};
-    if (ingredients) {
-      ingredients = ingredients.split(',');
-      filterOption = { 'ingredients': { $in: ingredients } }; 
-    }
-
-    const recipes = await Recipe.find(filterOption).sort(sortOption).populate('createdBy');
-    res.status(200).json(recipes);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
 
 module.exports = router;
