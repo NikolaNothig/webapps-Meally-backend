@@ -3,7 +3,6 @@ const router = express.Router();
 const User = require('../models/User');
 const { v4: uuidv4 } = require('uuid');
 
-
 router.post('/register', async (req, res) => {
   let emailExists = await User.findOne({ email: req.body.email });
   if (!emailExists) {
@@ -14,6 +13,9 @@ router.post('/register', async (req, res) => {
       newUser.password = req.body.password; 
 
       await newUser.save();
+      
+      res.cookie('userId', newUser._id.toString(), { httpOnly: false, secure: true, sameSite: 'strict' });
+
       res.status(200).json({ message: 'User registered successfully' });
     } catch (error) {
       res.status(400).json({ error: error.message });
@@ -36,7 +38,7 @@ router.post('/login', async (req, res) => {
       return res
         .cookie("loginToken", user.loginToken, { sameSite: "none", secure: true })
         .cookie("username", user.username, { sameSite: "none", secure: true })
-        .cookie("userId", user._id.toString(), { sameSite: "none", secure: true })  // Add this line
+        .cookie("userId", user._id.toString(), { sameSite: "none", secure: true }) 
         .status(200)
         .json({
           message: "OK",
@@ -54,7 +56,11 @@ router.post('/login', async (req, res) => {
   }
 });
 
+router.post('/logout', (req, res) => {
+  res.cookie('userId', '', { expires: new Date(0) });
 
+  res.status(200).json({ message: 'Logged out successfully' });
+});
 
 router.get('/', async (req, res) => {
   try {

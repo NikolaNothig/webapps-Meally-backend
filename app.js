@@ -6,6 +6,7 @@ const recipeRoutes = require('./routes/recipe');
 const cookieParser = require('cookie-parser');
 
 
+
 const app = express();
 app.use(cookieParser())
 
@@ -18,7 +19,8 @@ mongoose.connect(mongodb_uri, { useNewUrlParser: true, useUnifiedTopology: true 
     console.log('Connected to MongoDB');
     app.use(express.json());
     app.use('/user', userRoutes);
-    app.use('/recipe', recipeRoutes);
+    app.use('/recipes', recipeRoutes);
+
 
     app.listen(3000, () => console.log('Server running on port 3000'));
   })
