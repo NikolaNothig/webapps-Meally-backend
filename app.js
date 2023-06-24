@@ -10,7 +10,7 @@ const cookieParser = require('cookie-parser');
 const app = express();
 app.use(cookieParser())
 
-app.use(cors({origin: 'http://localhost:8080',credentials: true}));
+app.use(cors({ origin: 'http://localhost:8080', credentials: true }));
 
 const mongodb_uri = 'mongodb+srv://nikola:2FjHe4lPtfQRW3lt@webapps.fwd9zcy.mongodb.net/?retryWrites=true&w=majority';
 

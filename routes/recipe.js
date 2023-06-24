@@ -30,8 +30,8 @@ router.post('/create', async (req, res) => {
 });
 router.get('/user/:userId/recipes', async (req, res) => {
   try {
-    const recipes = await Recipe.find({createdBy: req.params.userId});
-    console.log('Fetched recipes', recipes); 
+    const recipes = await Recipe.find({ createdBy: req.params.userId });
+    console.log('Fetched recipes', recipes);
     res.status(200).json(recipes);
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -89,19 +89,19 @@ router.get('/search', async (req, res) => {
   try {
     let { sort, ingredients } = req.query;
 
-    
+
     let sortOption = {};
     if (sort === 'rating') {
-      sortOption = { 'ratings.rating': -1 }; 
+      sortOption = { 'ratings.rating': -1 };
     } else if (sort === 'difficulty') {
-      sortOption = { 'ratings.difficulty': -1 }; 
+      sortOption = { 'ratings.difficulty': -1 };
     }
 
-    
+
     let filterOption = {};
     if (ingredients) {
       ingredients = ingredients.split(',');
-      filterOption = { 'ingredients': { $in: ingredients } }; 
+      filterOption = { 'ingredients': { $in: ingredients } };
     }
 
     const recipes = await Recipe.find(filterOption).sort(sortOption).populate('createdBy');
@@ -128,6 +128,12 @@ router.post('/:id/rate', async (req, res) => {
       throw new Error('Invalid user or recipe ID');
     }
 
+    const userRated = user.ratedRecipes.some(ratedRecipe => ratedRecipe.recipe.toString() === req.params.id);
+    if (userRated) {
+      res.status(400).json({ error: 'User has already rated this recipe' });
+      return;
+    }
+
     const { rating, difficulty } = req.body;
     recipe.ratings.push({ user: user._id, rating, difficulty });
     user.ratedRecipes.push({ recipe: recipe._id, rating, difficulty });
@@ -138,6 +144,33 @@ router.post('/:id/rate', async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 });
+
+router.put('/:id/rate', async (req, res) => {
+  try {
+    const user = await User.findById(req.body.userId);
+    const recipe = await Recipe.findById(req.params.id);
+    if (!user || !recipe) {
+      throw new Error('Invalid user or recipe ID');
+    }
+
+    const { rating, difficulty } = req.body;
+
+    recipe.ratings = recipe.ratings.filter(rating => rating.user.toString() !== user._id.toString());
+    user.ratedRecipes = user.ratedRecipes.filter(ratedRecipe => ratedRecipe.recipe.toString() !== recipe._id.toString());
+
+    recipe.ratings.push({ user: user._id, rating, difficulty });
+    user.ratedRecipes.push({ recipe: recipe._id, rating, difficulty });
+
+    await recipe.save();
+    await user.save();
+
+    res.status(200).json({ message: 'Rating updated successfully' });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+
 
 router.get('/ingredients', async (req, res) => {
   try {
