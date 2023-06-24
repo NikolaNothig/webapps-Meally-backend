@@ -139,7 +139,14 @@ router.post('/:id/rate', async (req, res) => {
   }
 });
 
-
+router.get('/ingredients', async (req, res) => {
+  try {
+    const ingredients = await Recipe.distinct('ingredients');
+    res.json(ingredients);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
 
 module.exports = router;
 
