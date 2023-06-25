@@ -11,7 +11,7 @@ app.use(cookieParser())
 
 //app.use(cors({ origin: 'http://localhost:8080', credentials: true }));
 app.use(cors({
-  origin: 'https://webapps-frontend.onrender.com/', 
+  origin: 'https://meally-frontend.onrender.com', 
   credentials: true,
 }));
 
