@@ -56,12 +56,6 @@ router.post('/login', async (req, res) => {
   }
 });
 
-router.post('/logout', (req, res) => {
-  res.cookie('userId', '', { expires: new Date(0) });
-
-  res.status(200).json({ message: 'Logged out successfully' });
-});
-
 router.get('/', async (req, res) => {
   try {
     const users = await User.find();
