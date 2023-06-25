@@ -3,56 +3,47 @@ const router = express.Router();
 const User = require('../models/User');
 const { v4: uuidv4 } = require('uuid');
 
-router.post('/register', async (req, res) => {
+router.post("/register", async (req, res) => {
   let emailExists = await User.findOne({ email: req.body.email });
-  if (!emailExists) {
-    try {
-      let newUser = new User();
-      newUser.username = req.body.username;
-      newUser.email = req.body.email;
-      newUser.password = req.body.password; 
+  let usernameExists = await User.findOne({ username: req.body.username });
 
-      await newUser.save();
-      
-      res.cookie('userId', newUser._id.toString(), { httpOnly: false, secure: true, sameSite: 'strict' });
+  if (!(emailExists || usernameExists)) {
+    let user = new User();
+    user.username = req.body.username;
+    user.email = req.body.email;
+    user.password = req.body.password;
 
-      res.status(200).json({ message: 'User registered successfully' });
-    } catch (error) {
-      res.status(400).json({ error: error.message });
-    }
+    await user.save();
+    return res.status(200).json({ message: "Registration successful" });
   } else {
-    return res.status(406).json({ message: 'Email already exists' });
+    return res.status(406).json({ message: "Email or username already exists" });
   }
 });
 
-router.post('/login', async (req, res) => {
-  try {
-    let user = await User.findOne({ email: req.body.email });
-    if (!user) return res.status(401).json({ message: 'Unauthorized' });
+router.post("/login", async (req, res) => {
+  let user = await User.findOne({ email: req.body.email });
+  if (!user) return res.status(401).json({ message: "Unauthorized" });
 
-    if (req.body.password == user.password) { 
-      user.loginToken = uuidv4();
+  if (req.body.password == user.password) {
+    user.loginToken = uuidv4();
 
-      await user.save();
+    await user.save();
 
-      return res
-        .cookie("loginToken", user.loginToken, { sameSite: "none", secure: true })
-        .cookie("username", user.username, { sameSite: "none", secure: true })
-        .cookie("userId", user._id.toString(), { sameSite: "none", secure: true }) 
-        .status(200)
-        .json({
-          message: "OK",
-          cookies: {
-            loginToken: user.loginToken,
-            username: user.username,
-            userId: user._id.toString()  
-          },
-        });
-    } else {
-      return res.status(401).json({ message: 'Unauthorized' });
-    }
-  } catch (error) {
-    res.status(400).json({ error: error.message });
+    return res
+      .cookie("loginToken", user.loginToken, { sameSite: "none", secure: true })
+      .cookie("email", user.email, { sameSite: "none", secure: true })
+      .cookie("username", user.username, { sameSite: "none", secure: true })
+      .status(200)
+      .json({
+        message: "OK",
+        cookies: {
+          loginToken: user.loginToken,
+          email: user.email,
+          username: user.username,
+        },
+      });
+  } else {
+    return res.status(401).json({ message: "Unauthorized" });
   }
 });
 
