@@ -2,8 +2,10 @@ const express = require('express');
 const router = express.Router();
 const Recipe = require('../models/Recipe');
 const User = require('../models/User');
+const multer  = require('multer');
+const upload = multer({ dest: 'uploads/' });
 
-router.post('/create', async (req, res) => {
+router.post('/create', upload.single('image'), async (req, res) => {
   try {
     const { userId } = req.cookies;
     if (!userId) {
@@ -18,6 +20,7 @@ router.post('/create', async (req, res) => {
     const newRecipe = new Recipe({
       ...req.body,
       createdBy: userId,
+      image: `/uploads/${req.file.filename}`
     });
 
     const savedRecipe = await newRecipe.save();
@@ -28,6 +31,7 @@ router.post('/create', async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 });
+
 router.get('/user/:userId/recipes', async (req, res) => {
   try {
     const recipes = await Recipe.find({ createdBy: req.params.userId });
@@ -38,23 +42,28 @@ router.get('/user/:userId/recipes', async (req, res) => {
   }
 });
 
-router.put('/update/:id', async (req, res) => {
+router.put('/update/:id', upload.single('image'), async (req, res) => {
   try {
     const recipe = await Recipe.findById(req.params.id);
     const { userId } = req.cookies;
-    console.log('User ID from cookies:', userId);
-    console.log('Recipe createdBy:', recipe.createdBy.toString());
 
     if (recipe.createdBy.toString() !== userId) {
       return res.status(403).json({ message: 'User not authorized to edit this recipe' });
     }
 
-    const updatedRecipe = await Recipe.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    let updatedRecipeData = req.body;
+    
+    if (req.file) {
+      updatedRecipeData.image = `/uploads/${req.file.filename}`;
+    }
+
+    const updatedRecipe = await Recipe.findByIdAndUpdate(req.params.id, updatedRecipeData, { new: true });
     res.status(200).json(updatedRecipe);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 });
+
 
 
 router.delete('/delete/:id', async (req, res) => {
