@@ -25,8 +25,7 @@ router.post("/login", async (req, res) => {
   if (!user) return res.status(401).json({ message: "Unauthorized" });
 
   if (req.body.password == user.password) {
-    const loginToken = uuidv4();
-    user.loginToken = loginToken;
+    user.loginToken = uuidv4();
 
     await user.save();
 
