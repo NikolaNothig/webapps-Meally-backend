@@ -9,7 +9,6 @@ const cookieParser = require('cookie-parser');
 const app = express();
 app.use(cookieParser())
 
-//app.use(cors({ origin: 'http://localhost:8080', credentials: true }));
 app.use(cors({
   origin: 'https://meally-frontend.onrender.com', 
   credentials: true,
