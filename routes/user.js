@@ -31,12 +31,14 @@ router.post("/login", async (req, res) => {
 
     return res
       .cookie("loginToken", user.loginToken, { sameSite: "none", secure: true })
+      .cookie("userId", user._id, { sameSite: "none", secure: true })
       .cookie("email", user.email, { sameSite: "none", secure: true })
       .cookie("username", user.username, { sameSite: "none", secure: true })
       .status(200)
       .json({
         message: "OK",
         cookies: {
+          user_id: user._id,
           loginToken: user.loginToken,
           email: user.email,
           username: user.username,
