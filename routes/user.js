@@ -74,7 +74,7 @@ router.get('/:id/recipes', async (req, res) => {
   }
 });
 
-router.get("/check-login", async (req, res) => {
+router.get("/check", async (req, res) => {
   const token = req.cookies.loginToken;
   if (!token) {
     return res.status(401).json({ message: "Not logged in" });
