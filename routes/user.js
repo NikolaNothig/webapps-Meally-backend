@@ -48,6 +48,20 @@ router.post("/login", async (req, res) => {
   }
 });
 
+router.get("/check", async (req, res) => {
+  const token = req.cookies.loginToken;
+  if (!token) {
+    return res.status(401).json({ message: "Not logged in" });
+  }
+  
+  const user = await User.findOne({ loginToken: token });
+  if (!user) {
+    return res.status(401).json({ message: "Not logged in" });
+  }
+
+  return res.status(200).json({ message: "Logged in" });
+});
+
 router.get('/', async (req, res) => {
   try {
     const users = await User.find();
@@ -74,20 +88,5 @@ router.get('/:id/recipes', async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 });
-
-router.get("/check", async (req, res) => {
-  const token = req.cookies.loginToken;
-  if (!token) {
-    return res.status(401).json({ message: "Not logged in" });
-  }
-  
-  const user = await User.findOne({ loginToken: token });
-  if (!user) {
-    return res.status(401).json({ message: "Not logged in" });
-  }
-
-  return res.status(200).json({ message: "Logged in" });
-});
-
 
 module.exports = router;
