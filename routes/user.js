@@ -25,19 +25,20 @@ router.post("/login", async (req, res) => {
   if (!user) return res.status(401).json({ message: "Unauthorized" });
 
   if (req.body.password == user.password) {
-    user.loginToken = uuidv4();
+    const loginToken = uuidv4();
+    user.loginToken = loginToken;
 
     await user.save();
 
     return res
-      .cookie("loginToken", user.loginToken, { sameSite: "none", secure: true, domain: 'meally-frontend.onrender.com' })
+      .cookie("loginToken", loginToken, { sameSite: "none", secure: true, domain: 'meally-frontend.onrender.com' })
       .cookie("email", user.email, { sameSite: "none", secure: true, domain: 'meally-frontend.onrender.com' })
       .cookie("username", user.username, { sameSite: "none", secure: true, domain: 'meally-frontend.onrender.com' })
       .status(200)
       .json({
         message: "OK",
         cookies: {
-          loginToken: user.loginToken,
+          loginToken: loginToken,
           email: user.email,
           username: user.username,
         },
