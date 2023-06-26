@@ -84,7 +84,6 @@ router.delete('/delete/:id', async (req, res) => {
 });
 
 
-
 router.get('/', async (req, res) => {
   try {
     const recipes = await Recipe.find().populate('createdBy');
@@ -93,6 +92,7 @@ router.get('/', async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 });
+
 
 router.get('/search', async (req, res) => {
   try {
