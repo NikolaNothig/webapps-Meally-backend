@@ -30,9 +30,9 @@ router.post("/login", async (req, res) => {
     await user.save();
 
     return res
-      .cookie("loginToken", user.loginToken, { sameSite: "none", secure: true })
-      .cookie("email", user.email, { sameSite: "none", secure: true })
-      .cookie("username", user.username, { sameSite: "none", secure: true })
+      .cookie("loginToken", user.loginToken, { sameSite: "none", secure: true, domain: 'meally-frontend.onrender.com' })
+      .cookie("email", user.email, { sameSite: "none", secure: true, domain: 'meally-frontend.onrender.com' })
+      .cookie("username", user.username, { sameSite: "none", secure: true, domain: 'meally-frontend.onrender.com' })
       .status(200)
       .json({
         message: "OK",
@@ -84,7 +84,7 @@ router.get("/check-login", async (req, res) => {
   if (!user) {
     return res.status(401).json({ message: "Not logged in" });
   }
-  
+
   return res.status(200).json({ message: "Logged in" });
 });
 
