@@ -26,19 +26,18 @@ router.post("/login", async (req, res) => {
 
   if (req.body.password == user.password) {
     user.loginToken = uuidv4();
-    user.loginToken = loginToken;
 
     await user.save();
 
     return res
-      .cookie("loginToken", loginToken, { sameSite: "none", secure: true})
-      .cookie("email", user.email, { sameSite: "none", secure: true})
-      .cookie("username", user.username, { sameSite: "none", secure: true})
+      .cookie("loginToken", user.loginToken, { sameSite: "none", secure: true })
+      .cookie("email", user.email, { sameSite: "none", secure: true })
+      .cookie("username", user.username, { sameSite: "none", secure: true })
       .status(200)
       .json({
         message: "OK",
         cookies: {
-          loginToken: loginToken,
+          loginToken: user.loginToken,
           email: user.email,
           username: user.username,
         },
